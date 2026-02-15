@@ -31,13 +31,30 @@ jobs:
 
   swift-app:
     name: Swift Build and Tests
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
+
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
+      - name: Verify Swift toolchain (requires Swift 6+)
+        shell: bash
+        run: |
+          xcodebuild -version
+          xcode-select -p
+          swift --version
+          SWIFT_MAJOR="$(swift --version | awk 'NR==1 {split($3,v,"."); print v[1]}')"
+          if [[ -z "${SWIFT_MAJOR}" || "${SWIFT_MAJOR}" -lt 6 ]]; then
+            echo "Error: This project requires Swift 6+ for swift-tools-version: 6.0"
+            exit 1
+          fi
 
       - name: Build Rust Core dylib for Swift linking
         working-directory: alawyer-core
