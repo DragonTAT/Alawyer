@@ -1,0 +1,4 @@
+module alawyer_coreFFI {
+    header "alawyer_coreFFI.h"
+    export *
+}

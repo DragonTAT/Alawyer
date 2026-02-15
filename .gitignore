@@ -1,0 +1,20 @@
+# Rust
+/alawyer-core/target/
+/.cargo-home/
+/.cargo-target/
+
+# SwiftPM
+/Alawyer/.build/
+/Alawyer/.swiftpm/
+
+# macOS
+.DS_Store
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+
+# Xcode
+xcuserdata/
+*.xcworkspace/
+DerivedData/
+build/

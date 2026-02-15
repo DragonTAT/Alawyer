@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - 'release/**'
+  pull_request:
+    branches:
+      - main
+      - develop
+      - 'release/**'
+
+jobs:
+  rust-core:
+    name: Rust Core Tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: alawyer-core
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Run Rust lib tests
+        run: cargo test --lib
+
+  swift-app:
+    name: Swift Build and Tests
+    runs-on: macos-14
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build Rust Core dylib for Swift linking
+        working-directory: alawyer-core
+        run: cargo build --lib
+
+      - name: Build Swift app
+        working-directory: Alawyer
+        run: swift build
+
+      - name: Run Swift tests
+        working-directory: Alawyer
+        run: swift test
