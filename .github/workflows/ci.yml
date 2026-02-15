@@ -49,12 +49,23 @@ jobs:
         run: |
           xcodebuild -version
           xcode-select -p
-          swift --version
-          SWIFT_MAJOR="$(swift --version | awk 'NR==1 {split($3,v,"."); print v[1]}')"
-          if [[ -z "${SWIFT_MAJOR}" || "${SWIFT_MAJOR}" -lt 6 ]]; then
+          SWIFT_VERSION_OUTPUT="$(swift --version)"
+          echo "${SWIFT_VERSION_OUTPUT}"
+          SWIFT_VERSION_LINE="$(echo "${SWIFT_VERSION_OUTPUT}" | grep -E '^(Swift version|Apple Swift version)' | head -n1)"
+          if [[ -z "${SWIFT_VERSION_LINE}" ]]; then
+            echo "Error: Unable to parse Swift version line from toolchain output."
+            exit 1
+          fi
+          SWIFT_MAJOR="$(echo "${SWIFT_VERSION_LINE}" | sed -E 's/.*Swift version ([0-9]+).*/\1/')"
+          if [[ ! "${SWIFT_MAJOR}" =~ ^[0-9]+$ ]]; then
+            echo "Error: Parsed invalid Swift major version: ${SWIFT_MAJOR}"
+            exit 1
+          fi
+          if (( SWIFT_MAJOR < 6 )); then
             echo "Error: This project requires Swift 6+ for swift-tools-version: 6.0"
             exit 1
           fi
+          echo "Detected Swift major version: ${SWIFT_MAJOR}"
 
       - name: Build Rust Core dylib for Swift linking
         working-directory: alawyer-core
